@@ -41,7 +41,7 @@ of the selective agar of choice.
    protocol `01_cfu_distribute_dilutant.py.` The default is to use all 5 plates/trays and process
    the maximum of 40 samples at once.
 
-   <img src="OT-2-deck-plate-pos.png" alt="Deck layout for 96-well plates" width="500"/>
+   <img src="/images/OT-2-deck-plate-pos.png" alt="Deck layout for 96-well plates" width="500"/>
 4. [Import](https://support.opentrons.com/s/article/Get-started-Import-a-protocol) and
    [run](https://support.opentrons.com/s/article/Get-started-Run-your-protocol) the protocol
    `01_cfu_distribute_dilutant.py.` The OT-2 will distribute M9 dilutant to columns 2-11. 
@@ -61,7 +61,7 @@ of the selective agar of choice.
 1. After dilutant has been distributed load the rectangular trays onto the OT-2 deck as below. Use
    the same number of trays as you have 96-well plates.
 
-   <img src="OT-2-deck-plate-agar-pos.png" alt="Deck layout for 96-well plates" width="500"/>
+   <img src="/images/OT-2-deck-plate-agar-pos.png" alt="Deck layout for 96-well plates" width="500"/>
 
 2. [Import](https://support.opentrons.com/s/article/Get-started-Import-a-protocol) and
    [run](https://support.opentrons.com/s/article/Get-started-Run-your-protocol) the protocol
