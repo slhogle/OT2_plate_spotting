@@ -149,4 +149,5 @@ def run(protocol: protocol_api.ProtocolContext):
                               testrun=TESTRUN)
 
         # return lids to the finished well plate and tray, and take the covers off the next well plate and tray in the series
-        protocol.pause("(Un)Cover plates and trays")
+        protocol.comment("(Un)Cover plates and trays")
+        protocol.delay(seconds=20, minutes=0)

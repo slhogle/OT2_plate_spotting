@@ -79,11 +79,10 @@ def run(protocol: protocol_api.ProtocolContext):
                              source=dilutant['A1'],
                              dest=two_fold_row_list,
                              new_tip="never")
-    
+
     if TESTRUN:
         # use this to put tips back
         p300_mult.return_tip()
-    else: 
+    else:
         # trash the tips
         p300_mult.drop_tip()
-    
