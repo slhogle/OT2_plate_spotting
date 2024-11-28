@@ -64,7 +64,7 @@ def aspirate_spot(pipette, well_source, agar_dest, spot_vol=1.5, z_speed=75, spo
 
 def serial_dilution(pipette, transfer_volume, source, destination, testrun=False):
     if testrun:
-        trash=False
+        trash = False
     pipette.transfer(transfer_volume,
                      source,
                      destination,
@@ -131,19 +131,19 @@ def run(protocol: protocol_api.ProtocolContext):
                         plate_dil.rows()[0][5:10:2],
                         plate_dil.rows()[0][6:11:2],
                         testrun=TESTRUN)
-        
+
         # do one iteration for the 10 fold dilutions
-        aspirate_spot_iterate(p20_mult, 
-                              [12, 10, 8, 6, 5, 4, 3, 2], 
-                              plate_dil, 
+        aspirate_spot_iterate(p20_mult,
+                              [12, 10, 8, 6, 5, 4, 3, 2],
+                              plate_dil,
                               plate_agar,
                               mix=False,
                               testrun=TESTRUN)
         # and one for the two-fold dilutions. This ensures we only
         # reuse tips in 10 fold dilution increments
-        aspirate_spot_iterate(p20_mult, 
-                              [11, 9, 7], 
-                              plate_dil, 
+        aspirate_spot_iterate(p20_mult,
+                              [11, 9, 7],
+                              plate_dil,
                               plate_agar,
                               mix=False,
                               testrun=TESTRUN)
