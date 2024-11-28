@@ -34,6 +34,8 @@ The main process is divided into three steps/scripts
 
 Load 96-well plates and **one 300 ul tip box (does not need to be filter tips)** in the orientation as shown in Figure 1. One 96-well plate can be used for a full dilution series of 8 samples. The default is to run three plates at one time (24 total samples, Figure 1) which is the largest capacity the robot can handle in one batch.
 
+**IMPORTANT:** Make sure you do a "Labware position check" before this run. Importantly, set the z offset to be 5 cm above the container edge when you calibrate the reservoir z-axis. This will make sure the pipette doesn't jam tips into the bottom of the reservoir when it aspirates
+
 | <img src="images/OT-2-deck-step1.png" alt="Deck layout for 96-well plates" width="500"/> |
 | - |
 | **Figure 1:** Deck layout for distributing dilutant to plates |
