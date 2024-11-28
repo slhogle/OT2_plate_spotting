@@ -62,9 +62,11 @@ def aspirate_spot(pipette, well_source, agar_dest, spot_vol=1.5, z_speed=75, spo
     pipette.touch_tip(well_source)
 
 
-def serial_dilution(pipette, transfer_volume, source, destination, testrun=False):
-    if testrun:
+def serial_dilution(pipette, transfer_volume, source, destination, test_run=False):
+    if test_run:
         trash = False
+    else:
+        trash = True
     pipette.transfer(transfer_volume,
                      source,
                      destination,
@@ -74,7 +76,7 @@ def serial_dilution(pipette, transfer_volume, source, destination, testrun=False
                      trash=trash)
 
 
-def aspirate_spot_iterate(pipette, wells, source_dilution, target_agar, mix=True, testrun=False):
+def aspirate_spot_iterate(pipette, wells, source_dilution, target_agar, mix=True, test_run=False):
     pipette.pick_up_tip()
     for col in wells:
         well_target = 'A' + str(col)
@@ -86,7 +88,7 @@ def aspirate_spot_iterate(pipette, wells, source_dilution, target_agar, mix=True
                       spotting_dispense_rate=0.5,
                       mix=mix,
                       mixreps=1)
-    if testrun:
+    if test_run:
         pipette.return_tip()
     else:
         pipette.drop_tip()
@@ -120,17 +122,17 @@ def run(protocol: protocol_api.ProtocolContext):
         serial_dilution(p300_mult, TENFOLD_TRANS_VOL,
                         plate_dil.rows()[0][0:5],
                         plate_dil.rows()[0][1:6],
-                        testrun=TESTRUN)
+                        test_run=TESTRUN)
 
         serial_dilution(p300_mult, TENFOLD_TRANS_VOL,
                         plate_dil.rows()[0][5:10:2],
                         plate_dil.rows()[0][7:12:2],
-                        testrun=TESTRUN)
+                        test_run=TESTRUN)
 
         serial_dilution(p300_mult, TWOFOLD_TRANS_VOL,
                         plate_dil.rows()[0][5:10:2],
                         plate_dil.rows()[0][6:11:2],
-                        testrun=TESTRUN)
+                        test_run=TESTRUN)
 
         # do one iteration for the 10 fold dilutions
         aspirate_spot_iterate(p20_mult,
@@ -138,7 +140,7 @@ def run(protocol: protocol_api.ProtocolContext):
                               plate_dil,
                               plate_agar,
                               mix=False,
-                              testrun=TESTRUN)
+                              test_run=TESTRUN)
         # and one for the two-fold dilutions. This ensures we only
         # reuse tips in 10 fold dilution increments
         aspirate_spot_iterate(p20_mult,
@@ -146,7 +148,7 @@ def run(protocol: protocol_api.ProtocolContext):
                               plate_dil,
                               plate_agar,
                               mix=False,
-                              testrun=TESTRUN)
+                              test_run=TESTRUN)
 
         # return lids to the finished well plate and tray, and take the covers off the next well plate and tray in the series
         protocol.comment("(Un)Cover plates and trays")
