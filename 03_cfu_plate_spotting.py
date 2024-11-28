@@ -13,14 +13,10 @@ requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
 # Global vars
 #############
 
-DILUTE_PLATE_LOC = [1, 2, 3]
-AGAR_PLATE_LOC = [4, 5, 6]
+DILUTE_PLATE_LOC = [1]
+AGAR_PLATE_LOC = [4]
 # Each plate dilution series will require one full box of tips
-TIPS20_LOC = [7, 8, 9]
-
-# set volumes of dilutant you want to use for 10 fold and 2 fold dilutions
-TENFOLD_TRANS_VOL = 10
-TWOFOLD_TRANS_VOL = 20
+TIPS20_LOC = [7]
 
 # change the position of the pipette (left/right) if necessary
 P300_SIDE = "right"
@@ -31,11 +27,13 @@ P20_SIDE = "left"
 ###########
 
 
-def aspirate_spot(pipette, well_source, agar_dest, spot_vol=1.5, z_speed=75, spotting_dispense_rate=0.05):
+def aspirate_spot(pipette, well_source, agar_dest, spot_vol=1.5, z_speed=75, spotting_dispense_rate=0.05, mix=True, mixreps=1):
     """Aspirates a volume + extra from a source well on a dilution plate. Then spots a defined volume (default 2 ul) onto agar using a safe approach. Pipette moves to safe height above the plate, slowly dispense a droplet, then slowly lowers to touch the droplet to the agar surface. This has an extra mixing step compared to the function in script 02_cfu_serial_dilution_spot.py"""
-    pipette.mix(repetitions=3,
-                volume=20,
-                location=well_source)
+    if mix:
+        pipette.mix(repetitions=mixreps,
+                    volume=20,
+                    location=well_source)
+
     pipette.aspirate(volume=15,
                      location=well_source)
     # for safety, set the z-axis speed limit to default of 50 mm/s.
@@ -54,6 +52,21 @@ def aspirate_spot(pipette, well_source, agar_dest, spot_vol=1.5, z_speed=75, spo
     pipette.blow_out(well_source)
     # try and knock off remaining droplets from the blowout
     # pipette.touch_tip(well_source)
+
+
+def aspirate_spot_iterate(pipette, source_dilution, target_agar):
+    pipette.pick_up_tip()
+    for col in reversed(range(2, 13)):
+        well_target = 'A' + str(col)
+        aspirate_spot(pipette,
+                      source_dilution[well_target],
+                      target_agar[well_target],
+                      spot_vol=2,
+                      z_speed=75,
+                      spotting_dispense_rate=0.5,
+                      mix=True,
+                      mixreps=1)
+    pipette.drop_tip()
 
 ###########
 # Main body
@@ -78,16 +91,8 @@ def run(protocol: protocol_api.ProtocolContext):
         "biorad_96_wellplate_200ul_pcr", slot, label="agar plate") for slot in AGAR_PLATE_LOC]
 
     for plate_dil, plate_agar in zip(dilution_plates, agar_plates):
-        for col in range(2, 13):
-            p20_mult.pick_up_tip()
-            well_target = 'A' + str(col)
-            aspirate_spot(p20_mult,
-                          plate_dil[well_target],
-                          plate_agar[well_target],
-                          spot_vol=1.5,
-                          z_speed=75,
-                          spotting_dispense_rate=0.05)
-            p20_mult.drop_tip()
+
+        aspirate_spot_iterate(p20_mult, plate_dil, plate_agar)
 
         # return lids to the finished well plate and tray, and take the covers off the next well plate and tray in the series
         protocol.pause("(Un)Cover plates and trays")

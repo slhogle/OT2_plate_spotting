@@ -12,13 +12,13 @@ requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
 # Global vars
 #############
 
-DILUTE_PLATE_LOC = [1, 2, 3, 4, 5]
+DILUTE_PLATE_LOC = [1]
 RESERVOIR_LOC = 6
 TIPS300_LOC = 9
 
 # set volumes of dilutant you want to use for 10 fold and 2 fold dilutions
-TENFOLD_DILUTE_VOL = 90
-TWOFOLD_DILUTE_VOL = 20
+TENFOLD_DILUTE_VOL = 180
+TWOFOLD_DILUTE_VOL = 100
 
 # change the position of the pipette (left/right) if necessary
 P300_SIDE = "right"
@@ -53,6 +53,10 @@ def run(protocol: protocol_api.ProtocolContext):
 
     # loop through the plates
     for plate in dilution_plates:
+        # https://docs.opentrons.com/v2/pipettes/characteristics.html#ot-2-pipette-flow-rates
+        # this is max flow rate for p300 multichannel
+        # pipette.flow_rate.aspirate = 94
+        # pipette.flow_rate.dispense = 94
 
         # columns for 10-fold dilution. reference top row of the plate.
         ten_fold_row_list = [plate.rows()[0][col]

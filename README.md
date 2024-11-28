@@ -32,13 +32,13 @@ The main process is divided into three steps/scripts
 
 ## Distribute dilutant
 
-Load 96-well plates and **one p300 tip box** in the orientation as shown in Figure 1. One 96-well plate can be used for a full dilution series of 8 samples. The default is to run three plates at one time (24 total samples, Figure 1) which is the largest capacity the robot can handle in one batch.
+Load 96-well plates and **one 300 ul tip box (does not need to be filter tips)** in the orientation as shown in Figure 1. One 96-well plate can be used for a full dilution series of 8 samples. The default is to run three plates at one time (24 total samples, Figure 1) which is the largest capacity the robot can handle in one batch.
 
 | <img src="images/OT-2-deck-step1.png" alt="Deck layout for 96-well plates" width="500"/> |
 | - |
 | **Figure 1:** Deck layout for distributing dilutant to plates |
 
-[Import](https://support.opentrons.com/s/article/Get-started-Import-a-protocol) and [run](https://support.opentrons.com/s/article/Get-started-Run-your-protocol) the python script `01_cfu_distribute_dilutant.py.` Figure 2 shows the 96-well plate layout. The script will add the volume of dilutant in the middle column (90 or 20 µl) necessary for the serial dilution in the serial transfer step.
+[Import](https://support.opentrons.com/s/article/Get-started-Import-a-protocol) and [run](https://support.opentrons.com/s/article/Get-started-Run-your-protocol) the python script `01_cfu_distribute_dilutant.py.` Figure 2 shows the 96-well plate layout. The script will add the volume of dilutant in the middle column (180 or 100 µl) necessary for the serial dilution in the serial transfer step.
 
 | <img src="images/96-Well_plate.png" alt="Deck layout for 96-well plates" width="500"/> |
 | - |
@@ -46,13 +46,13 @@ Load 96-well plates and **one p300 tip box** in the orientation as shown in Figu
 
 Note that columns 7, 9, and 11 are 2-fold dilutions of the previous column. This is done to optimize the dynamic range of CFUs for counting, but it will probably take some trial and error to select which dilutions in the series to use for the final count.
 
-The only work that needs to be done outside of the OT-2 is to load 100 µL of your samples into column 1 of the plate inside of a biosafety cabinet. **IMPORTANT:** you need at least 15 ml of dilutant to run the procedure for 5 plates. After a plate has finished pause the robot to place a lid over the plate. 
+The only work that needs to be done outside of the OT-2 is to load 100 µL of your samples into column 1 of the plate inside of a biosafety cabinet. **IMPORTANT:** you need at least 15 ml of dilutant to run the procedure for 5 plates. After a plate has finished pause the robot to place a lid over the plate.
 
-If you do no wish to use the robot to add dilutant to the plate, then you can use a multichannel pipette to add **20 µl** of dilutant to columns 7, 9, and 11 and **90 µl** to the remaining columns (except Column 1).
+If you do no wish to use the robot to add dilutant to the plate, then you can use a multichannel pipette to add **100 µl** of dilutant to columns 7, 9, and 11 and **180 µl** to the remaining columns (except Column 1).
 
 ## Perform dilution and agar spotting
 
-Keep the 96-well plates in the same positions as in the distribute dilutant step. Load **p20 tip boxes** and agar trays in the orientation as shown in Figure 2.
+Keep the 96-well plates in the same positions as in the distribute dilutant step. Load **20 and 200 ul OT2 filter tip boxes** and agar trays in the orientation as shown in Figure 3.
 
 | <img src="images/OT-2-deck-step2.png" alt="Deck layout for 96-well plates" width="500"/> |
 | - |
