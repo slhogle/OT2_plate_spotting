@@ -14,7 +14,7 @@ requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
 
 DILUTE_PLATE_LOC = [1]
 RESERVOIR_LOC = 6
-TIPS300_LOC = 9
+TIPS300_LOC = 7
 
 # set volumes of dilutant you want to use for 10 fold and 2 fold dilutions
 TENFOLD_DILUTE_VOL = 180
@@ -23,6 +23,11 @@ TWOFOLD_DILUTE_VOL = 100
 # change the position of the pipette (left/right) if necessary
 P300_SIDE = "right"
 P20_SIDE = "left"
+
+# setting to True tells the robot to return the tips to the rack
+# in all steps. This is useful for prototyping, but DO NOT USE for
+# real work
+TESTRUN = True
 
 ###########
 # Main body
@@ -74,5 +79,11 @@ def run(protocol: protocol_api.ProtocolContext):
                              source=dilutant['A1'],
                              dest=two_fold_row_list,
                              new_tip="never")
-    # trash the tips
-    p300_mult.drop_tip()
+    
+    if TESTRUN:
+        # use this to put tips back
+        p300_mult.return_tip()
+    else: 
+        # trash the tips
+        p300_mult.drop_tip()
+    

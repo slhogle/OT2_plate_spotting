@@ -16,11 +16,16 @@ requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
 DILUTE_PLATE_LOC = [1]
 AGAR_PLATE_LOC = [4]
 # Each plate dilution series will require one full box of tips
-TIPS20_LOC = [7]
+TIPS20_LOC = [10]
 
 # change the position of the pipette (left/right) if necessary
 P300_SIDE = "right"
 P20_SIDE = "left"
+
+# setting to True tells the robot to return the tips to the rack
+# in all steps. This is useful for prototyping, but DO NOT USE for
+# real work
+TESTRUN = True
 
 ###########
 # Functions
@@ -51,12 +56,12 @@ def aspirate_spot(pipette, well_source, agar_dest, spot_vol=1.5, z_speed=75, spo
     # force the remaining volume out. there is also the push_out parameter on dispense, but using it resulted in an error for me: https://docs.opentrons.com/v2/basic_commands/liquids.html#push-out-after-dispense
     pipette.blow_out(well_source)
     # try and knock off remaining droplets from the blowout
-    # pipette.touch_tip(well_source)
+    pipette.touch_tip(well_source)
 
 
-def aspirate_spot_iterate(pipette, source_dilution, target_agar):
+def aspirate_spot_iterate(pipette, wells, source_dilution, target_agar, mix=True, testrun=False):
     pipette.pick_up_tip()
-    for col in reversed(range(2, 13)):
+    for col in wells:
         well_target = 'A' + str(col)
         aspirate_spot(pipette,
                       source_dilution[well_target],
@@ -64,9 +69,13 @@ def aspirate_spot_iterate(pipette, source_dilution, target_agar):
                       spot_vol=2,
                       z_speed=75,
                       spotting_dispense_rate=0.5,
-                      mix=True,
+                      mix=mix,
                       mixreps=1)
-    pipette.drop_tip()
+    if testrun:
+        pipette.return_tip()
+    else:
+        pipette.drop_tip()
+
 
 ###########
 # Main body
@@ -91,11 +100,21 @@ def run(protocol: protocol_api.ProtocolContext):
         "biorad_96_wellplate_200ul_pcr", slot, label="agar plate") for slot in AGAR_PLATE_LOC]
 
     for plate_dil, plate_agar in zip(dilution_plates, agar_plates):
-
-        aspirate_spot_iterate(p20_mult, plate_dil, plate_agar)
+        # do one iteration for the 10 fold dilutions
+        aspirate_spot_iterate(p20_mult,
+                              [12, 10, 8, 6, 5, 4, 3, 2],
+                              plate_dil,
+                              plate_agar,
+                              mix=False,
+                              testrun=TESTRUN)
+        # and one for the two-fold dilutions. This ensures we only
+        # reuse tips in 10 fold dilution increments
+        aspirate_spot_iterate(p20_mult,
+                              [11, 9, 7],
+                              plate_dil,
+                              plate_agar,
+                              mix=False,
+                              testrun=TESTRUN)
 
         # return lids to the finished well plate and tray, and take the covers off the next well plate and tray in the series
         protocol.pause("(Un)Cover plates and trays")
-
-        # this delays the protocol for 20 seconds
-        # protocol.delay(seconds=20)
