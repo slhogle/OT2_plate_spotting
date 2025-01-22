@@ -1,8 +1,8 @@
 from opentrons import protocol_api
 
 metadata = {
-    "protocolName": "Dilution series and agar spotting",
-    "description": """Part 3 of the high-throughput droplet colony counting protocol. This protocol spots a small volume of the different dilutions onto a rectangular tray.""",
+    "protocolName": "Step 03: further tray spotting",
+    "description": """Spots dilutions from Step 02 onto a different rectangular tray.""",
     "author": "Shane Hogle"
 }
 
@@ -13,8 +13,8 @@ requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
 # Global vars
 #############
 
-DILUTE_PLATE_LOC = [1]
-AGAR_PLATE_LOC = [4]
+DILUTE_PLATE_LOC = [1, 1, 2, 2, 3, 3]
+AGAR_PLATE_LOC = [4, 7, 5, 8, 6, 9]
 # Each plate dilution series will require one full box of tips
 TIPS20_LOC = [10]
 
@@ -23,15 +23,15 @@ P300_SIDE = "right"
 P20_SIDE = "left"
 
 # can manually set starting tip if the tip box has had some of the tips used
-STARTING_TIP = None
+#STARTING_TIP = "A2"
 
-if STARTING_TIP is None:
-    STARTING_TIP = "A1"
+#if STARTING_TIP is None:
+#    STARTING_TIP = "A1"
 
 # setting to True tells the robot to return the tips to the rack
 # in all steps. This is useful for prototyping, but DO NOT USE for
 # real work
-TESTRUN = True
+TESTRUN = False
 
 ###########
 # Functions
@@ -122,7 +122,7 @@ def run(protocol: protocol_api.ProtocolContext):
     p20_mult = protocol.load_instrument(
         "p20_multi_gen2", P20_SIDE, tip_racks=tips20)
 
-    p20_mult.starting_tip = tips20.well(STARTING_TIP)
+    #p20_mult.starting_tip = tips20.well(STARTING_TIP)
 
     # load dilution series plates
     dilution_plates = [protocol.load_labware(

@@ -1,8 +1,8 @@
 from opentrons import protocol_api
 
 metadata = {
-    "protocolName": "Distribute dilutant",
-    "description": """Part 01 of the high-throughput droplet colony counting protocol. This protocol distributes the required volumes of dilutant to the 96 well plates.""",
+    "protocolName": "Step 01: Distribute dilutant",
+    "description": """Distributes the required volumes of dilutant to the 96 well plates.""",
     "author": "Shane Hogle"
 }
 
@@ -12,9 +12,9 @@ requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
 # Global vars
 #############
 
-DILUTE_PLATE_LOC = [1]
+DILUTE_PLATE_LOC = [1, 2, 3]
 RESERVOIR_LOC = 6
-TIPS300_LOC = 7
+TIPS300_LOC = 9
 
 # volume of dilutant you want to use for 10 fold dilutions
 TENFOLD_DILUTE_VOL = 180
@@ -26,7 +26,7 @@ P20_SIDE = "left"
 # setting to True tells the robot to return the tips to the rack
 # in all steps. This is useful for prototyping, but DO NOT USE for
 # real work
-TESTRUN = True
+TESTRUN = False
 
 ###########
 # Main body

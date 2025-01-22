@@ -1,8 +1,8 @@
 from opentrons import protocol_api
 
 metadata = {
-    "protocolName": "Dilution series and agar spotting",
-    "description": """Part 2 of the high-throughput droplet colony counting protocol. This protocol performs serial dilutions of bacterial samples in column 1 of 96-well plate.""",
+    "protocolName": "Step 02: Serial dilution and agar spotting",
+    "description": """Performs serial dilutions of bacterial samples in column 1 of 96-well plate and spots the dilutions on an agar tray.""",
     "author": "Shane Hogle"
 }
 
@@ -12,9 +12,9 @@ requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
 # Global vars
 #############
 
-DILUTE_PLATE_LOC = [1]
-AGAR_PLATE_LOC = [4]
-TIPS300_LOC = [7]
+DILUTE_PLATE_LOC = [3]
+AGAR_PLATE_LOC = [6]
+TIPS300_LOC = [9]
 TIPS20_LOC = [10]
 
 # set volumes of dilutant you want to use for 10 fold and 2 fold dilutions
@@ -27,7 +27,7 @@ P20_SIDE = "left"
 # setting to True tells the robot to return the tips to the rack
 # in all steps. This is useful for prototyping, but DO NOT USE for
 # real work
-TESTRUN = True
+TESTRUN = False
 
 ###########
 # Functions
