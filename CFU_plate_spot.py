@@ -1,8 +1,8 @@
 from opentrons import protocol_api
 
 metadata = {
-    "protocolName": "Step 03: further tray spotting",
-    "description": """Spots dilutions from Step 02 onto a different rectangular tray.""",
+    "protocolName": "Tray spotting",
+    "description": """Spots dilutions from a 96-well plate onto rectangular Omnitrays with agar.""",
     "author": "Shane Hogle"
 }
 
@@ -13,9 +13,12 @@ requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
 # Global vars
 #############
 
-DILUTE_PLATE_LOC = [1, 1, 2, 2, 3, 3]
-AGAR_PLATE_LOC = [4, 7, 5, 8, 6, 9]
-# Each plate dilution series will require one full box of tips
+# Plate dictionary has dilution 96-well plate as key and list of agar plates as values
+# for example {1: [4,7]} would indicate the dilution plate in deck position 1 will be spotted
+# in dulicate onto agar trays in deck positions 4 and 7.
+PLATE_DICTIONARY = {1: [4,7], 2: [5,8]}
+
+# Each plate dilution series will require one column of tips
 TIPS20_LOC = [10]
 
 # change the position of the pipette (left/right) if necessary
@@ -33,10 +36,12 @@ P20_SIDE = "left"
 # real work
 TESTRUN = False
 
+# Spotting volume in ul
+SPOT_VOL = 2
+
 ###########
 # Functions
 ###########
-
 
 def mix_aspirate(pipette, well_source, mix=True, mixreps=1):
     if mix:
@@ -48,7 +53,7 @@ def mix_aspirate(pipette, well_source, mix=True, mixreps=1):
                          location=well_source)
 
 
-def spot(pipette, agar_dest, spot_vol=1.5, z_speed=75, spotting_dispense_rate=0.15):
+def spot(pipette, agar_dest, spot_vol=SPOT_VOL, z_speed=75, spotting_dispense_rate=0.15):
     """Aspirates a volume + extra from a source well on a dilution plate. Then spots a defined volume (default 2 ul) onto agar using a safe approach. Pipette moves to safe height above the plate, slowly dispense a droplet, then slowly lowers to touch the droplet to the agar surface. This has an extra mixing step compared to the function in script 02_cfu_serial_dilution_spot.py"""
 
     # for safety, set the z-axis speed limit to default of 75 mm/s.
@@ -62,10 +67,10 @@ def spot(pipette, agar_dest, spot_vol=1.5, z_speed=75, spotting_dispense_rate=0.
     # reset the max Z speed to 400
     pipette.default_speed = None
 
-
 def mix_aspirate_spot(pipette, source_plate, target_agar, test_run=False):
     pipette.pick_up_tip()
-    source_pos = [9, 8, 7, 6]
+    # Column 9 = E-8, Column 8 = E-7, Column 7 = E-6, Column 6 = E-5, Column 5 = E-4
+    source_pos = [8, 7, 6, 5]
     target_pos = [12, 9, 6, 3]
 
     for s_pos, t_pos in zip(source_pos, target_pos):
@@ -73,41 +78,22 @@ def mix_aspirate_spot(pipette, source_plate, target_agar, test_run=False):
         # mix then aspirate full pipette from source well
         mix_aspirate(pipette, source_plate[s_well], mix=True, mixreps=1)
         # spot in three columns for each dilution (technical replicates)
-        for t in [t_pos, t_pos-1, t_pos-2]:
-            t_well = 'A'+str(t)
-            spot(pipette, target_agar[t_well],
-                 spot_vol=2, z_speed=75,
-                 spotting_dispense_rate=0.5)
+        for ta in target_agar:
+            for t in [t_pos, t_pos-1, t_pos-2]:
+                t_well = 'A'+str(t)
+                spot(pipette, ta[t_well],
+                     spot_vol=SPOT_VOL, z_speed=75,
+                     spotting_dispense_rate=0.5)
         # dispense any remaining volume back into the source well
         pipette.dispense(location=source_plate[s_well])
         # force the remaining volume out. there is also the push_out parameter on dispense, but using it resulted in an error for me: https://docs.opentrons.com/v2/basic_commands/liquids.html#push-out-after-dispense
         pipette.blow_out(source_plate[s_well])
         # try and knock off remaining droplets from the blowout
-        pipette.touch_tip(source_plate[s_well])
-
+        #pipette.touch_tip(source_plate[s_well])
     if test_run:
         pipette.return_tip()
     else:
         pipette.drop_tip()
-
-
-def aspirate_spot_iterate(pipette, wells, source_dilution, target_agar, mix=True, testrun=False):
-    pipette.pick_up_tip()
-    for col in wells:
-        well_target = 'A' + str(col)
-        aspirate_spot(pipette,
-                      source_dilution[well_target],
-                      target_agar[well_target],
-                      spot_vol=2,
-                      z_speed=75,
-                      spotting_dispense_rate=0.5,
-                      mix=mix,
-                      mixreps=1)
-    if testrun:
-        pipette.return_tip()
-    else:
-        pipette.drop_tip()
-
 
 ###########
 # Main body
@@ -115,26 +101,20 @@ def aspirate_spot_iterate(pipette, wells, source_dilution, target_agar, mix=True
 
 def run(protocol: protocol_api.ProtocolContext):
 
-    # Loading labware
+    # Loading tips
     tips20 = [protocol.load_labware(
         "opentrons_96_tiprack_20ul", slot) for slot in TIPS20_LOC]
-
+    
+    # load p20 pipette
     p20_mult = protocol.load_instrument(
         "p20_multi_gen2", P20_SIDE, tip_racks=tips20)
 
     #p20_mult.starting_tip = tips20.well(STARTING_TIP)
 
-    # load dilution series plates
-    dilution_plates = [protocol.load_labware(
-        "corning_96_wellplate_360ul_flat", slot, label="dilution plate") for slot in DILUTE_PLATE_LOC]
-
-    # load agar plates for spotting
-    agar_plates = [protocol.load_labware(
-        "biorad_96_wellplate_200ul_pcr", slot, label="agar plate") for slot in AGAR_PLATE_LOC]
-
-    for plate_dil, plate_agar in zip(dilution_plates, agar_plates):
-        mix_aspirate_spot(p20_mult, plate_dil, plate_agar, test_run=TESTRUN)
-
-        # return lids to the finished well plate and tray, and take the covers off the next well plate and tray in the series
-        protocol.comment("(Un)Cover plates and trays")
-        protocol.delay(seconds=20, minutes=0)
+    for plate_dil,plate_agar in PLATE_DICTIONARY.items():
+        
+        dilution_plate = protocol.load_labware("corning_96_wellplate_360ul_flat", plate_dil, label="dilution plate")
+        
+        agar_plates = [protocol.load_labware("biorad_96_wellplate_200ul_pcr", slot, label="agar plate") for slot in plate_agar]
+        
+        mix_aspirate_spot(p20_mult, dilution_plate, agar_plates, test_run=TESTRUN)

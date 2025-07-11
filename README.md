@@ -1,7 +1,7 @@
 
 # Introduction
 
-This is a protocol to dilute and spot bacteria for colony forming unit (CFU) quantification. Bacterial samples are passed through a series of 10x serial dilutions with each dilution spotted in triplicate onto a rectangular agar plate such as the [Nunc OmniTray](https://www.sigmaaldrich.com/FI/en/product/sigma/o0764) or something similar. These plates are incubated for some duration of time and the resulting colonies are counted at different dilutions. Plates may also be imaged using an instrument like the Evos m7000. The protocol can process up to 24 bacterial samples at a time (3 plates x 8 wells (1 column) per plate). This protocol was inspired by the protocol [available here](https://protocols.opentrons.com/protocol/33y0f3).
+This is a protocol to perform high-throughput CFU spotting of bacteria for colony forming unit (CFU) quantification. The user should manually set up bacterial samples in a series of serial dilutions in a 96-well plate. Then select dilutions are aspirated and spotted onto a rectangular agar plate such as the [Nunc OmniTray](https://www.sigmaaldrich.com/FI/en/product/sigma/o0764) or something similar. These plates are incubated for some duration of time and the resulting colonies are counted at different dilutions. Plates may also be imaged using an instrument like the Evos m7000 or using the [Reshape Biotech Imaging device](https://www.reshapebiotech.com/). The protocol can process up to 24 bacterial samples at a time (3 plates x 8 wells (1 column) per plate). This protocol was inspired by the protocol [available here](https://protocols.opentrons.com/protocol/33y0f3).
 
 # Reagents
 
@@ -19,50 +19,54 @@ This is a protocol to dilute and spot bacteria for colony forming unit (CFU) qua
 - [Opentrons OT-2 96 Tip Rack - 300 µL](https://shop.opentrons.com/opentrons-300ul-tips-1000-refills/)
 
 # IMPORTANT: Editing scripts and tip management
-If you need to change defaults in these scripts you will need to edit the scripts directly before importing them into the Opentrons app. The main variables that need to be changed are in the "Global Vars" section of each script, which include the deck locations for the different plates, the dilution volumes to be used, and the position of the pipettes on the robot (e.g., left or right).
+If you need to change defaults in this script you will need to edit the script directly before importing it into the Opentrons app. The main variables that need to be changed are in the "Global Vars" section of the script, which include the deck locations for the different plates, the dilution volumes to be used, and the position of the pipettes on the robot (e.g., left or right).
 
-**Important!** We will always need to start the protocol from column A of a tip box. With the multichannel you cannot specify a different column to start with. The pipette will always start at A1. This may necessitate that you use a multichannel pipette to manually move unused tips into position A1 of an existing tip rack.
+**Important!** We will always need to start the protocol from column A of a tip box. With the multichannel you cannot specify a different column to start with. The pipette will always start at A1.
 
 # Procedure
 
 The main process is divided into three steps/scripts
 
-## 1) Distribute dilutant
+## 1) Manually distribute dilutant and perform serial dilution
 
-Load 96-well plates and **one 200 or 300 µl tip box (does not need to be filter tips)** in the orientation as shown in Figure 1. One 96-well plate can be used for a full dilution series of 8 samples. The default is to run three plates at one time (24 total samples, Figure 1) which is the largest capacity the robot can handle in one batch.
+This should be performed in a Biosafety cabinet using a multichannel pipette. (NOTE: earlier we had the robot perform the dilution step but we learned through experience that it is significantly slower and more cumbersome than manually doing the dilution in a biosafety cabinet)
 
-**IMPORTANT:** Make sure you do a "Labware position check" before this run. Importantly, set the z offset to be **5 mm above the container edge** when you calibrate the reservoir z-axis. This will make sure the pipette doesn't jam tips into the bottom of the reservoir when it aspirates
+Steps:
+1. 8 different samples should be transfered at full concentration in Column 1.
+2. Add 180 µL of the dilutant to columns 2-8 using a multichannel pipette and a reservoir.
+3. For columns n = {1,2,3,4,5,6,7,8} starting from 1:
+    Perform a serial dilution of 20 µL from column *n* to column *n+1* (e.g., transfer 20 µL from column 1 to column 2). Make sure to aspirate up and down to mix thoroughly. Discard tips between dilutions.
 
-| <img src="images/OT-2-deck-step1.png" alt="Deck layout for 96-well plates" width="500"/> |
-| - |
-| **Figure 1:** Deck layout for distributing dilutant to plates |
-
-[Import](https://support.opentrons.com/s/article/Get-started-Import-a-protocol) and [run](https://support.opentrons.com/s/article/Get-started-Run-your-protocol) the python script `01_cfu_distribute_dilutant.py.` Figure 2 shows the 96-well plate layout. The script will add 180 µl of dilutant to columns 2-9 for the serial dilution in the next transfer step.
+The end product should look as in Figure 1 below.
 
 | <img src="images/96-Well_plate.png" alt="Deck layout for 96-well plates" width="500"/> |
 | - |
 | **Figure 2:** Concentrations for the serial dilution series in a plate |
 
-Note that columns 7, 9, and 11 are 2-fold dilutions of the previous column. This is done to optimize the dynamic range of CFUs for counting, but it will probably take some trial and error to select which dilutions in the series to use for the final count.
+## 2) Agar spotting
 
-The only work that needs to be done outside of the OT-2 is to load 100 µL of your samples into column 1 of the plate inside of a biosafety cabinet. **IMPORTANT:** you need at least 9 ml of dilutant to run the procedure for 3 plates. After a plate has finished place a lid over the plate.
-
-If you do no wish to use the robot to add dilutant to the plate, then you can use a multichannel pipette to add **180 µl** to columns 2-9.
-
-## 2) Serial dilution and agar spotting
-
-Keep the 96-well plates in the same positions as in the distribute dilutant step. Load **20 and 200 or 300 µl OT2 filter tip boxes** and agar trays in the orientation as shown in Figure 3.
+Load dilution plate and agar trays in the required orientation. For example, if you have dilution plates in deck positions 1, 2, and 3 and want to replicate spot each plate into rows 4-6 and 7-9 as in Figure 2 below.
 
 | <img src="images/OT-2-deck-step2.png" alt="Deck layout for 96-well plates" width="500"/> |
 | - |
-| **Figure 3:** Deck layout for performing the serial dilutions |
+| **Figure 2:** Deck layout for performing the serial dilutions |
 
-[Import](https://support.opentrons.com/s/article/Get-started-Import-a-protocol) and [run](https://support.opentrons.com/s/article/Get-started-Run-your-protocol) the python script `02_cfu_serial_dilution_spot.py.` This script performs two distinct subprotocols. First, it performs the serial dilution series for each plate in the concentrations of Figure 2. It uses the p300 multichannel pipette and 200/300 µl tips, exchanging tips for each dilution.
+You would edit the dictionary in the script so that the variable at line 19 is:
 
-Next, the robot switches to the p20 multichannel pipette and uses 20 µl tips to draw from the dilutions of 1E-08, 1E-07, 1E-06, and 1E-05 and spots a small aliquot (usually 2 µl) of these dilutions to the agar. In this step, the robot works backwards from most dilute to most concentrated so that it does not need to exchange tips each time. **It is very important** to perform the ["Labware Position Check"](https://support.opentrons.com/s/article/How-positional-calibration-works-on-the-OT-2#LPC) which will allow you to [set offsets](https://support.opentrons.com/s/article/How-Labware-Offsets-work-on-the-OT-2) specific for the rectangular trays with agar. **MOST IMPORTANT** is to set the "z" offset for the agar plates so that the OT-2 considers the "top of the well" as when the pipette tips are just barely above the agar.
+```python
+PLATE_DICTIONARY = {1: [4,7], 2: [5,8], 3: [6,9]}
+```
 
-## 3) Additional agar spotting from the same dilutions
+The python dictionary above would specify that the dilution plate at deck position 1 is spotted in duplicate onto agar trays in deck positions 4 and 7, dilution plate 2 into deck positions 5 and 8, and so on...
 
-For some protocols you might need to spot culture to both nutrient agar and, for example, nutrient agar with a counter selective antibiotic. In this case you don't need to perform dilution again and you can proceed to running a protocol that just transfers from the 96-well plates to a new agar tray. Keep the same orientation as in Figure 3, but swap out the agar trays in deck slots 4, 5, and 6. Here it is important to keep track of the 20 µl tips that have been used in the previous step. The starting tip position can can be set using the `STARTING_TIP` variable on line 26 of `03_cfu_plate_spotting.py.`
+However, you could also just as easily write the dictionary as:
 
-[Import](https://support.opentrons.com/s/article/Get-started-Import-a-protocol) and [run](https://support.opentrons.com/s/article/Get-started-Run-your-protocol) the python script `03_cfu_plate_spotting.py.` Again it is important to perform the ["Labware Position Check"](https://support.opentrons.com/s/article/How-positional-calibration-works-on-the-OT-2#LPC) which will allow you to [set offsets](https://support.opentrons.com/s/article/How-Labware-Offsets-work-on-the-OT-2) specific for the rectangular trays with agar. **MOST IMPORTANT** is to set the "z" offset for the agar plates so that the OT-2 considers the "top of the well" as when the pipette tips are just barely above the agar.
+```python
+PLATE_DICTIONARY = {1: [4,5,6,7,7,9]}
+```
+
+where the robot will replicate spot from deck position 1 into agar trays in deck psoitions 4 through 9.
+
+After editing the script to your specifications, [import](https://support.opentrons.com/s/article/Get-started-Import-a-protocol) and [run](https://support.opentrons.com/s/article/Get-started-Run-your-protocol) the python script in Opentrons app. It is very important to perform the ["Labware Position Check"](https://support.opentrons.com/s/article/How-positional-calibration-works-on-the-OT-2#LPC) which will allow you to [set offsets](https://support.opentrons.com/s/article/How-Labware-Offsets-work-on-the-OT-2) specific for the rectangular trays with agar. **MOST IMPORTANT** is to set the "z" offset for the agar plates so that the OT-2 considers the "top of the well" as when the pipette tips are just barely above the agar. The robot will record and reload the labware offsets from the last time the script was run. From my experience, it works best to always delete the offsets and start from the begininig each time because the height of the agar in different trays can be highly variable. 
+
+The script will spot 2 µL from the 1E-7, 1E-6, 1E-5, and 1E-4 dilutions in triplicate onto the agar trays in columns 1E-7 = {12,11,10}, 1E-6 = {9,8,7}, 1E-5 = {6,5,4} and 1E-4 = {3,2,1}
